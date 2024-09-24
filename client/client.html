@@ -5,7 +5,61 @@
   <link rel="stylesheet" type="text/css" href="/style.css">
   
   <script>
+    //Handles our FETCH response. This function is async because it
+    //contains an await.
+    const handleResponse = async (response, parseJSON) => {
+      
+      //Grab the content section
+      const content = document.querySelector('#content');
 
+      //Based on the status code, display something
+      switch(response.status) {
+        case 200: //success
+          content.innerHTML = `<b>Success</b>`;
+          break;
+        case 400: //created
+          content.innerHTML = '<b>Bad Request</b>';
+          break;
+        case 401: //updated (no response back from server)
+          content.innerHTML = '<b>Unauthorized</b>';
+          return;
+        case 403: //bad request
+          content.innerHTML = `<b>Forbidden</b>`;
+          break;
+        case 500: //forbidden
+          content.innerHTML = `<b>Internal Server Error</b>`;
+          break;
+        case 501: //not implemented
+          content.innerHTML = `<b>Not Implemented</b>`;
+            break;
+        default: //any other status code
+          content.innerHTML = `<b>Resource Not Found</b>`;
+          break;
+      }
+
+      //Parse the response to json. This works because we know the server always
+      //sends back json. Await because .json() is an async function.
+      const obj = response;
+      console.log(obj);
+      
+      //If we have a message, display it.
+      if(obj.message){
+        content.innerHTML += `<p>Message: ${obj.message}</p>`;
+      }
+    };
+
+    const init = () => {
+      const button = document.querySelector('#send');
+
+      button.addEventListener('click', async () => {
+        const sendJSON = (document.querySelector('#type').value === 'application/json');
+        const url = document.querySelector('#page').value + `?json=${sendJSON}`;
+        response = await fetch(url);
+        handleResponse(response, sendJSON);
+      });
+    };
+
+    window.onload = init;
   </script>
 </head>
 <body>
