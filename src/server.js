@@ -1,6 +1,4 @@
 const http = require('http');
-// querystring module for parsing querystrings from url
-const query = require('querystring');
 // pull in our custom files
 const htmlHandler = require('./htmlResponses.js');
 const xmlJSONHandler = require('./xmlJSONResponses.js');
