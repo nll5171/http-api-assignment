@@ -1,19 +1,20 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <title>Our simple HTTP server</title>
   <link rel="stylesheet" type="text/css" href="/style.css">
-  
+
   <script>
     //Handles our FETCH response. This function is async because it
     //contains an await.
     const handleResponse = async (response, parseJSON) => {
-      
+
       //Grab the content section
       const content = document.querySelector('#content');
 
       //Based on the status code, display something
-      switch(response.status) {
+      switch (response.status) {
         case 200: //success
           content.innerHTML = `<b>Success</b>`;
           break;
@@ -22,7 +23,7 @@
           break;
         case 401: //updated (no response back from server)
           content.innerHTML = '<b>Unauthorized</b>';
-          return;
+          break;
         case 403: //bad request
           content.innerHTML = `<b>Forbidden</b>`;
           break;
@@ -31,21 +32,35 @@
           break;
         case 501: //not implemented
           content.innerHTML = `<b>Not Implemented</b>`;
-            break;
+          break;
         default: //any other status code
           content.innerHTML = `<b>Resource Not Found</b>`;
           break;
       }
 
-      //Parse the response to json. This works because we know the server always
-      //sends back json. Await because .json() is an async function.
-      const obj = response;
-      console.log(obj);
-      
-      //If we have a message, display it.
-      if(obj.message){
-        content.innerHTML += `<p>Message: ${obj.message}</p>`;
+      // Needed in case we have to parse XML
+      const xmlParser = new DOMParser();
+      let obj;
+
+      //Check if the response is in JSON, parse it as such if so
+      if (parseJSON) {
+        obj = await response.json();
+
+        //If we have a message, display it.
+        if (obj.message) {
+          content.innerHTML += `<p>Message: ${obj.message}</p>`;
+        }
+      } else {
+        // Response must be in XML. Parse it as text, then as XML
+        obj = await xmlParser.parseFromString(await response.text(), 'text/xml');
+
+        // If we have a message, display it
+        if(obj.lastChild.lastChild) {
+          content.innerHTML += `<p>Message: ${obj.lastChild.firstChild.innerHTML}</p>`;
+        }
       }
+
+      console.log(obj);
     };
 
     const init = () => {
@@ -62,6 +77,7 @@
     window.onload = init;
   </script>
 </head>
+
 <body>
   <section id="top">
     <h3>Status Code Tests</h3>
@@ -83,4 +99,5 @@
   <section id="content">
   </section>
 </body>
+
 </html>

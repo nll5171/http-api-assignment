@@ -19,7 +19,7 @@ const onRequest = (request, response) => {
     htmlHandler.getIndex(request, response);
   } else {
     // If user types in url manually, always respond using json
-    let respondJSON = false;
+    let respondJSON = true;
     if (parsedUrl.searchParams.get('json')) {
       respondJSON = parsedUrl.searchParams.get('json') === 'true';
     }

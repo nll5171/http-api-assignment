@@ -14,7 +14,6 @@ const respond = (request, response, code, object, respondJSON) => {
     'Content-Length': Buffer.byteLength(content, 'utf8'),
   });
 
-  console.log(content);
   response.write(content);
   response.end();
 };
